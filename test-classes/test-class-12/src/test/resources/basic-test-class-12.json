@@ -1,0 +1,12 @@
+{
+    "id":"basic-test-class-12",
+    "parentURI":"null",
+    
+    "relativePath":"true",
+    
+    "classes":["file:///../../../target/test-class-12-1.0-SNAPSHOT.jar",
+        "file:///../../../../test-class-1/src/test/resources/basic-test-class-1.json",
+        "file:///../../../../test-class-2/src/test/resources/basic-test-class-2.json"
+    ]
+    
+}
