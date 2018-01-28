@@ -1,0 +1,9 @@
+{
+    "id":"basic-test-class-1",
+    "parentURI":"null",
+    
+    "relativePath":"true",
+    
+    "classes":["file:///../../../target/test-class-1-1.0-SNAPSHOT.jar"]
+    
+}

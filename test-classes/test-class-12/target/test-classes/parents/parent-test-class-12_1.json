@@ -1,0 +1,11 @@
+{
+    "id":"parent-test-class-12_1",
+    "parentURI":"file:///./parent-test-class-12_2.json",
+    
+    "relativePath":"true",
+    
+    "classes":[
+        "file:///../../../../../test-class-1/src/test/resources/basic-test-class-1.json"        
+    ]
+    
+}
