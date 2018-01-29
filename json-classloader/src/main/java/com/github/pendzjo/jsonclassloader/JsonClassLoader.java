@@ -39,7 +39,6 @@ public class JsonClassLoader {
                     StandardCharsets.UTF_8)) {
                 jcl = JsonClassLoaderConstants.gson.fromJson(br,
                         JsonClassLoader.class);
-                System.out.printf("Json file at [%s] is %s  %n", toJson, jcl);
                 jcl.setFileLocation(toJson.getParent());
                 return jcl;
             } catch (IOException ex) {
@@ -134,6 +133,14 @@ public class JsonClassLoader {
                 add("parentURI", parentURI).
                 add("classes",
                         classes).toString();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Path getFileLocation() {
+        return this.fileLocation;
     }
 
 }

@@ -15,24 +15,28 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author johnnp
  */
-public class MemoryClassLoader {
+public class MemoryClassLoader implements AutoCloseable {
 
-    private final static URLClassLoader GLOBAL_BASE_JSON_CLASS_LOADER =
+    private final URLClassLoader GLOBAL_BASE_JSON_CLASS_LOADER =
             URLClassLoader.newInstance(new URL[0], null);
 
-    private final static Map<JsonClassLoader, URLClassLoader> CLASSLOADER_MEMORY =
+    private final Map<Path, URLClassLoader> CLASSLOADER_MEMORY =
             new ConcurrentHashMap<>();
 
-    public static URLClassLoader produce(Path p) throws
+    public URLClassLoader produce(Path p) throws
             MalformedURLException {
         return produce(JsonClassLoader.createJsonClassLoader(p));
     }
 
-    public static URLClassLoader produce(
+    public URLClassLoader produce(
             JsonClassLoader jcl) throws
             MalformedURLException {
-        if (CLASSLOADER_MEMORY.containsKey(jcl)) {
-            return CLASSLOADER_MEMORY.get(jcl);
+        if (jcl.getFileLocation() != null && CLASSLOADER_MEMORY.containsKey(
+                jcl.getFileLocation())) {
+            System.out.printf(
+                    "Seen this jcl [%s] before going to return ClassLoader for it %n",
+                    jcl);
+            return CLASSLOADER_MEMORY.get(jcl.getFileLocation());
         }
         synchronized (CLASSLOADER_MEMORY) {
             URLClassLoader parent = GLOBAL_BASE_JSON_CLASS_LOADER;
@@ -46,8 +50,6 @@ public class MemoryClassLoader {
 
             Set<URLClassLoader> cls = new HashSet<>();
             for (JsonClassLoader other : jcl.getClassLoaders()) {
-                System.out.printf("Loading other JsonClassLoader %s %n",
-                        other);
                 URLClassLoader tmp = CLASSLOADER_MEMORY.get(other);
                 if (tmp == null) {
                     tmp = produce(other);
@@ -56,20 +58,34 @@ public class MemoryClassLoader {
             }
             Set<URL> urls = new HashSet<>();
             for (URLClassLoader ucl : cls) {
-                for (URL url : ucl.getURLs()) {
-                    urls.add(url);
+                if (ucl != null && ucl.getURLs() != null) {
+                    for (URL url : ucl.getURLs()) {
+                        urls.add(url);
+                    }
                 }
             }
             for (URL url : jcl.getClasses()) {
                 urls.add(url);
             }
 
-            System.out.printf("creating %s with parent %s", jcl, jclParent);
-            CLASSLOADER_MEMORY.put(jcl, new URLClassLoader(urls.toArray(
-                    new URL[urls.size()]), parent));
-            return CLASSLOADER_MEMORY.get(jcl);
+            CLASSLOADER_MEMORY.put(jcl.getFileLocation(), new URLClassLoader(
+                    urls.toArray(
+                            new URL[urls.size()]), parent));
+            return CLASSLOADER_MEMORY.get(jcl.getFileLocation());
         }
 
+    }
+
+    @Override
+    public void close() {
+        for (URLClassLoader ucl : CLASSLOADER_MEMORY.values()) {
+            try {
+                ucl.close();
+            } catch (Exception ex) {
+
+            }
+        }
+        CLASSLOADER_MEMORY.clear();
     }
 
 }

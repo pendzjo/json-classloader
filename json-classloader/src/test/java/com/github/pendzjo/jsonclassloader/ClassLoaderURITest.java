@@ -88,38 +88,6 @@ public class ClassLoaderURITest {
     }
 
     @Test
-    public void testBasicFactory() {
-
-        for (BasicTestObjectStruct btos : BasicTestObjectStruct.OBJECT_MAP.values()) {
-            System.out.println(
-                    "-------------------------------------------------------------");
-            ClassLoader classLoader = null;
-            try { //SOMETHING NOT WORKING....
-                classLoader = MemoryClassLoader.produce(
-                        btos.jsonPath);
-                try (Undo u = Undo.doThis(classLoader)) {
-                    System.out.printf("Final class for %s is %s %n",
-                            btos.simpleName,
-                            classLoader);
-                    Class testClass = classLoader.loadClass(btos.className);
-                    Object o = testClass.newInstance();
-                }
-            } catch (Throwable ex) {
-                ex.printStackTrace();
-                System.out.printf(
-                        "************* testBasicFactory failed with classloader %s ************** %n",
-                        classLoader);
-                ClassLoaderDebug.printLoadedClassLoader(classLoader);
-                System.out.printf(
-                        "*************************************************** %n");
-                org.junit.Assert.fail(String.format("Error on btos named %s",
-                        btos.simpleName));
-            }
-        }
-
-    }
-
-    @Test
     public void testBasicParentCreation() throws MalformedURLException,
             ClassNotFoundException,
             InstantiationException, IllegalAccessException {
@@ -157,38 +125,6 @@ public class ClassLoaderURITest {
             System.out.printf("Object is %s %n", o);
 
         }
-    }
-
-    @Test
-    public void testBasicMemoryClassLoaderWithParentKey() throws
-            MalformedURLException,
-            ClassNotFoundException, InstantiationException,
-            IllegalAccessException {
-
-        BasicTestObjectStruct btos = BasicTestObjectStruct.OBJECT_MAP.get(
-                BasicTestObjectStruct.TEST_PARENT_KEY);
-
-        JsonClassLoader jcl =
-                JsonClassLoader.createJsonClassLoader(
-                        btos.jsonPath);
-
-        System.out.printf("JCL == %s %n", jcl);
-
-        ClassLoader use = MemoryClassLoader.produce(jcl);
-
-        ClassLoaderDebug.printLoadedClassLoader(use);
-
-        try (Undo u = Undo.doThis(use);) {
-
-            Class clazz = use.loadClass(btos.className);
-            System.out.printf("Class found %s with clazz name %s %n", clazz,
-                    btos.className);
-
-            Object o = clazz.newInstance();
-            System.out.printf("Object is %s %n", o);
-
-        }
-
     }
 
 }
